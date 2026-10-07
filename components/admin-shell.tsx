@@ -245,10 +245,9 @@ export function AdminShell() {
         </tbody></table></div>
       </section>
       {access?.role === "owner" && <AdminUsers currentId={access.id} />}
-      <section className="pdf-export-panel" aria-labelledby="pdf-export-title">
-        <div><p className="admin-eyebrow">Guest records</p><h2 id="pdf-export-title">Download the complete list</h2><p>Creates a clean, print-ready PDF with RSVP totals and every guest record.</p></div>
+      <div className="pdf-export-action">
         <button type="button" onClick={downloadGuestList} disabled={!guests.length || exportingPdf}><Download size={18} /> {exportingPdf ? "Preparing PDF..." : "Download guest list PDF"}</button>
-      </section>
+      </div>
     </main>
     {selected && <div className="drawer-backdrop" onMouseDown={() => setSelected(null)}><aside className="guest-drawer" onMouseDown={e => e.stopPropagation()}><button className="drawer-close" aria-label="Close guest details" onClick={() => setSelected(null)}><X /></button><p className="admin-eyebrow">Guest details</p><h2>{selected.full_name}</h2><dl><div><dt>WhatsApp</dt><dd>{selected.whatsapp}</dd></div><div><dt>Attendance</dt><dd>{selected.attendance === "accepts" ? "Joyfully accepts" : "Regretfully declines"}</dd></div><div><dt>Allocation</dt><dd>{selected.allocation === 2 ? "Couple" : "1 Person"}</dd></div><div><dt>Status</dt><dd>{selected.status}</dd></div><div><dt>Reference</dt><dd>{selected.guest_reference || "Generated after approval"}</dd></div></dl>
       {selected.guest_reference && <div className="qr-card">{qr && <img src={qr} alt={`QR code for ${selected.guest_reference}`} />}<strong>{selected.guest_reference}</strong></div>}

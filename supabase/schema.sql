@@ -40,8 +40,8 @@ create index if not exists rsvps_name_idx on public.rsvps(full_name);
 
 create sequence if not exists public.guest_reference_seq
   as bigint
-  start with 1
-  increment by 1
+  start with 10
+  increment by 10
   minvalue 1
   no cycle;
 
@@ -58,7 +58,7 @@ declare
   reference_number bigint;
 begin
   reference_number := nextval('public.guest_reference_seq');
-  if reference_number > 99999 then
+  if reference_number > 99990 then
     raise exception 'Guest reference limit reached';
   end if;
   return 'JD-' || lpad(reference_number::text, 5, '0');

@@ -120,7 +120,7 @@ export async function uniqueReference() {
     const match = row.guest_reference?.match(/^JD-(\d{5})$/);
     return match ? Math.max(maximum, Number(match[1])) : maximum;
   }, 0);
-  const next = highest + 1;
-  if (next > 99_999) throw new Error("REFERENCE_GENERATION_FAILED");
+  const next = Math.max(10, (Math.floor(highest / 10) + 1) * 10);
+  if (next > 99_990) throw new Error("REFERENCE_GENERATION_FAILED");
   return `JD-${String(next).padStart(5, "0")}`;
 }
