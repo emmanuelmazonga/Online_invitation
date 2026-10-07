@@ -137,7 +137,12 @@ export function AdminShell() {
       const gold: [number, number, number] = [184, 148, 83];
       const ivory: [number, number, number] = [250, 247, 240];
       const generatedAt = new Date();
-      const sortedGuests = [...guests].sort((a, b) => a.full_name.localeCompare(b.full_name));
+      const sortedGuests = [...guests].sort((a, b) => {
+        if (a.guest_reference && b.guest_reference) return a.guest_reference.localeCompare(b.guest_reference, undefined, { numeric: true });
+        if (a.guest_reference) return -1;
+        if (b.guest_reference) return 1;
+        return a.full_name.localeCompare(b.full_name);
+      });
 
       doc.setFillColor(...forest);
       doc.rect(0, 0, 297, 38, "F");

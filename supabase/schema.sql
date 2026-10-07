@@ -38,6 +38,36 @@ $$;
 create index if not exists rsvps_status_idx on public.rsvps(status);
 create index if not exists rsvps_name_idx on public.rsvps(full_name);
 
+create sequence if not exists public.guest_reference_seq
+  as bigint
+  start with 1
+  increment by 1
+  minvalue 1
+  no cycle;
+
+revoke all on sequence public.guest_reference_seq from public, anon, authenticated;
+grant usage, select, update on sequence public.guest_reference_seq to service_role;
+
+create or replace function public.next_guest_reference()
+returns text
+language plpgsql
+volatile
+set search_path = ''
+as $$
+declare
+  reference_number bigint;
+begin
+  reference_number := nextval('public.guest_reference_seq');
+  if reference_number > 99999 then
+    raise exception 'Guest reference limit reached';
+  end if;
+  return 'JD-' || lpad(reference_number::text, 5, '0');
+end;
+$$;
+
+revoke all on function public.next_guest_reference() from public, anon, authenticated;
+grant execute on function public.next_guest_reference() to service_role;
+
 create table if not exists public.admin_users (
   id uuid primary key default gen_random_uuid(),
   user_id uuid unique references auth.users(id) on delete set null,

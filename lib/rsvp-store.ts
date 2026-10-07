@@ -107,13 +107,20 @@ export async function deleteRsvp(id: string): Promise<void> {
   await writeLocal(rows.filter((row) => row.id !== id));
 }
 
-const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-
 export async function uniqueReference() {
-  for (let attempt = 0; attempt < 20; attempt += 1) {
-    const suffix = Array.from({ length: 5 }, () => CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)]).join("");
-    const reference = `JD-${suffix}`;
-    if (!(await findByReference(reference))) return reference;
+  if (hasSupabase()) {
+    const { data, error } = await supabase().rpc("next_guest_reference");
+    if (error) throw error;
+    if (typeof data !== "string" || !/^JD-\d{5}$/.test(data)) throw new Error("REFERENCE_GENERATION_FAILED");
+    return data;
   }
-  throw new Error("REFERENCE_GENERATION_FAILED");
+
+  const rows = await readLocal();
+  const highest = rows.reduce((maximum, row) => {
+    const match = row.guest_reference?.match(/^JD-(\d{5})$/);
+    return match ? Math.max(maximum, Number(match[1])) : maximum;
+  }, 0);
+  const next = highest + 1;
+  if (next > 99_999) throw new Error("REFERENCE_GENERATION_FAILED");
+  return `JD-${String(next).padStart(5, "0")}`;
 }

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { CalendarDays, ChevronDown, MapPin } from "lucide-react";
+import { closingImage, collageImages, heroImage } from "@/lib/site-images";
 
 const weddingDate = new Date("2026-11-21T09:00:00+02:00");
 
@@ -98,7 +99,7 @@ export function Invitation() {
   return (
     <main className="invitation-page">
       <section className="hero" id="top">
-        <Image src="/images/field-walk.jpg" alt="A couple walking hand in hand through a sunlit field" fill priority sizes="100vw" className="hero-photo" />
+        <Image src={heroImage.src} alt={heroImage.alt} fill priority sizes="100vw" className="hero-photo" />
         <div className="hero-shade" />
         <div className="hero-copy reveal">
           <p className="eyebrow light">Together with their families</p>
@@ -168,12 +169,13 @@ export function Invitation() {
 
       <section className="gallery section" aria-label="Couple photo gallery">
         <div className="gallery-copy scroll-reveal" data-reveal="heading"><p className="eyebrow">A little joy</p><h2>Moments held close</h2></div>
-        <figure className="gallery-a scroll-reveal" data-reveal="image"><Image src="/images/joyful-portrait.jpg" fill sizes="(max-width: 700px) 92vw, 46vw" alt="A joyful couple embracing outdoors" /></figure>
-        <figure className="gallery-b scroll-reveal reveal-delay-1" data-reveal="image"><Image src="/images/detail-hands-1.jpg" fill sizes="(max-width: 700px) 44vw, 22vw" alt="A couple holding hands" /></figure>
-        <figure className="gallery-c scroll-reveal reveal-delay-2" data-reveal="image"><Image src="/images/garden-kiss.jpg" fill sizes="(max-width: 700px) 44vw, 22vw" alt="A couple sharing a quiet moment beside the water" /></figure>
-        <figure className="gallery-d scroll-reveal" data-reveal="image"><Image src="/images/monochrome-touch.jpg" fill sizes="(max-width: 700px) 92vw, 46vw" alt="A black and white portrait of a couple reaching for one another" /></figure>
-        <figure className="gallery-e scroll-reveal reveal-delay-1" data-reveal="image"><Image src="/images/detail-hands-2.jpg" fill sizes="(max-width: 700px) 44vw, 22vw" alt="A close portrait of intertwined hands" /></figure>
-        <figure className="gallery-f scroll-reveal reveal-delay-2" data-reveal="image"><Image src="/images/forest-embrace.jpg" fill sizes="(max-width: 700px) 44vw, 22vw" alt="A couple embracing in golden woodland light" /></figure>
+        <div className="gallery-grid">
+          {collageImages.map((image, index) => (
+            <figure className={`gallery-item gallery-item--${image.shape} scroll-reveal reveal-delay-${index % 3}`} data-reveal="image" key={image.src}>
+              <Image src={image.src} fill sizes={image.shape === "portrait" ? "(max-width: 700px) 46vw, 24vw" : image.shape === "panorama" ? "(max-width: 700px) 46vw, 72vw" : "(max-width: 700px) 92vw, 48vw"} alt={image.alt} style={"position" in image ? { objectPosition: image.position } : undefined} />
+            </figure>
+          ))}
+        </div>
       </section>
 
       <section className="gift section dark-section">
@@ -208,7 +210,7 @@ export function Invitation() {
       </section>
 
       <section className="closing">
-        <Image src="/images/forest-embrace.jpg" fill sizes="100vw" alt="A couple standing together in warm woodland light" />
+        <Image src={closingImage.src} fill sizes="100vw" alt={closingImage.alt} />
         <div className="closing-shade" />
         <div className="closing-copy scroll-reveal" data-reveal="scale"><span className="monogram">J <i>&amp;</i> D</span><p>We can’t wait to celebrate with you</p><h2>James &amp; Diana</h2><span>21 November 2026</span></div>
       </section>

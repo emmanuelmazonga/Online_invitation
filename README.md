@@ -30,4 +30,10 @@ Without Supabase credentials, local development uses `data/guests.local.json`. T
 
 ## Replacing photographs
 
-Photographs live in `public/images`. Replace a file while keeping its filename to preserve every crop and responsive layout, or update the relevant paths in `components/invitation.tsx` and `app/opengraph-image.tsx`.
+Photographs are grouped by page section:
+
+- `public/images/top` — the opening hero image
+- `public/images/middle` — the scalable collage
+- `public/images/bottom` — the closing image
+
+Replace a file while keeping its filename to preserve the current crop. All image paths, alt text, collage shapes, and optional focal positions are centralized in `lib/site-images.ts`. Add or remove entries from `collageImages` and the dense responsive grid will automatically reflow. Available collage shapes are `featured`, `wide`, `panorama`, and `portrait`.

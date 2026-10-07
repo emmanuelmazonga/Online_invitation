@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
+import { heroImage } from "@/lib/site-images";
 
 export const alt = "James & Diana · 21 November 2026 · Ndola, Zambia";
 export const size = { width: 1200, height: 630 };
@@ -8,7 +9,7 @@ export const contentType = "image/png";
 export const runtime = "nodejs";
 
 export default function OpenGraphImage() {
-  const photo = `data:image/jpeg;base64,${readFileSync(join(process.cwd(), "public", "images", "field-walk.jpg")).toString("base64")}`;
+  const photo = `data:image/jpeg;base64,${readFileSync(join(process.cwd(), "public", ...heroImage.src.split("/").filter(Boolean))).toString("base64")}`;
   return new ImageResponse(
     <div style={{ position: "relative", display: "flex", width: "100%", height: "100%", alignItems: "center", overflow: "hidden", color: "#FAF7F0", background: "#28352B" }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
