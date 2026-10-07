@@ -2,7 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
-import { Check, Copy, Download, ExternalLink, LockKeyhole, LogOut, Plus, Search, ShieldCheck, Trash2, Users, X } from "lucide-react";
+import { Check, Copy, Download, ExternalLink, LockKeyhole, LogOut, Plus, RotateCcw, Search, ShieldCheck, Trash2, Users, X } from "lucide-react";
 import type { AdminRole, AdminUserRecord, RsvpRecord, RsvpStatus } from "@/lib/types";
 import { whatsappHref } from "@/lib/phone";
 
@@ -102,6 +102,7 @@ export function AdminShell() {
     setGuests(rows => rows.map(row => row.id === id ? data.guest : row));
     setSelected(current => current?.id === id ? data.guest : current);
     if (action === "mark-sent") setDrawerNotice("Confirmation marked as sent.");
+    if (action === "restore-pending") setDrawerNotice("Guest returned to pending for review.");
   }
 
   async function copyConfirmation(guest: RsvpRecord) {
@@ -255,6 +256,7 @@ export function AdminShell() {
       {selected.status === "Approved" && <div className="confirmation-actions"><a className="whatsapp-button" href={whatsappHref(selected.whatsapp, confirmationMessage(selected))} target="_blank" rel="noreferrer">Open in WhatsApp <ExternalLink size={16} /></a><button className="admin-button secondary" onClick={() => copyConfirmation(selected)}><Copy size={16} /> Copy confirmation</button><button className="admin-button secondary" onClick={() => act(selected.id, "mark-sent")}><Check size={16} /> Mark as sent</button><button className="admin-button secondary" onClick={() => act(selected.id, "check-in")}>Check in guest</button></div>}
       {selected.confirmation_sent_at && <p className="sent-note">Confirmation marked sent {new Date(selected.confirmation_sent_at).toLocaleString("en-ZM")}</p>}
       {drawerNotice && <p className="drawer-notice" role="status">{drawerNotice}</p>}
+      {access?.role === "owner" && selected.status === "Declined" && <div className="owner-recovery-zone"><p>Owner correction</p><span>Use this if a guest was declined by mistake.</span><button onClick={() => act(selected.id, "restore-pending")}><RotateCcw size={16} /> Return to pending</button></div>}
       {access?.role === "owner" && <div className="owner-danger-zone"><p>Owner only</p><button onClick={() => deleteGuest(selected)}><Trash2 size={16} /> Delete guest permanently</button></div>}
     </aside></div>}
   </div>;

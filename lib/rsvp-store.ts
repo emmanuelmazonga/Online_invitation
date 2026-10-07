@@ -95,6 +95,29 @@ export async function updateRsvp(id: string, patch: Partial<RsvpRecord>): Promis
   return rows[index];
 }
 
+export async function restoreDeclinedRsvp(id: string): Promise<RsvpRecord> {
+  if (hasSupabase()) {
+    const { data, error } = await supabase()
+      .from("rsvps")
+      .update({ status: "Pending" })
+      .eq("id", id)
+      .eq("status", "Declined")
+      .select()
+      .maybeSingle();
+    if (error) throw error;
+    if (!data) throw new Error("NOT_DECLINED");
+    return data as RsvpRecord;
+  }
+
+  const rows = await readLocal();
+  const index = rows.findIndex((row) => row.id === id);
+  if (index < 0) throw new Error("NOT_FOUND");
+  if (rows[index].status !== "Declined") throw new Error("NOT_DECLINED");
+  rows[index] = { ...rows[index], status: "Pending" };
+  await writeLocal(rows);
+  return rows[index];
+}
+
 export async function deleteRsvp(id: string): Promise<void> {
   if (hasSupabase()) {
     const { data, error } = await supabase().from("rsvps").delete().eq("id", id).select("id").maybeSingle();
