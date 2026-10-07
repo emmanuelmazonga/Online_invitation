@@ -2,7 +2,7 @@
 
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
-import { Check, Copy, ExternalLink, LockKeyhole, LogOut, Plus, Search, ShieldCheck, Trash2, Users, X } from "lucide-react";
+import { Check, Copy, Download, ExternalLink, LockKeyhole, LogOut, Plus, Search, ShieldCheck, Trash2, Users, X } from "lucide-react";
 import type { AdminRole, AdminUserRecord, RsvpRecord, RsvpStatus } from "@/lib/types";
 import { whatsappHref } from "@/lib/phone";
 
@@ -68,6 +68,7 @@ export function AdminShell() {
   const [selected, setSelected] = useState<RsvpRecord | null>(null);
   const [qr, setQr] = useState("");
   const [drawerNotice, setDrawerNotice] = useState("");
+  const [exportingPdf, setExportingPdf] = useState(false);
 
   const load = useCallback(async () => {
     const response = await fetch("/api/admin/guests", { cache: "no-store" });
@@ -122,6 +123,105 @@ export function AdminShell() {
     setSelected(null);
   }
 
+  async function downloadGuestList() {
+    if (!guests.length || exportingPdf) return;
+    setExportingPdf(true);
+    try {
+      const [{ default: jsPDF }, { default: autoTable }] = await Promise.all([
+        import("jspdf"),
+        import("jspdf-autotable"),
+      ]);
+      const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+      const forest: [number, number, number] = [40, 53, 43];
+      const sage: [number, number, number] = [103, 122, 102];
+      const gold: [number, number, number] = [184, 148, 83];
+      const ivory: [number, number, number] = [250, 247, 240];
+      const generatedAt = new Date();
+      const sortedGuests = [...guests].sort((a, b) => a.full_name.localeCompare(b.full_name));
+
+      doc.setFillColor(...forest);
+      doc.rect(0, 0, 297, 38, "F");
+      doc.setTextColor(...gold);
+      doc.setFont("times", "normal");
+      doc.setFontSize(15);
+      doc.text("J  &  D", 14, 14);
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(23);
+      doc.text("Wedding Guest List", 14, 27);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.5);
+      doc.text("James Konkola & Diana Mazonga  |  21 November 2026", 283, 14, { align: "right" });
+      doc.setTextColor(221, 226, 221);
+      doc.text(`Generated ${generatedAt.toLocaleString("en-ZM", { dateStyle: "medium", timeStyle: "short" })}`, 283, 26, { align: "right" });
+
+      const summaries = [
+        ["TOTAL RSVPS", counts.total],
+        ["PENDING", counts.pending],
+        ["APPROVED", counts.approved],
+        ["DECLINED", counts.declined],
+        ["CHECKED IN", counts.checked],
+      ] as const;
+      summaries.forEach(([label, value], index) => {
+        const x = 14 + index * 54;
+        doc.setFillColor(...ivory);
+        doc.roundedRect(x, 43, 49, 18, 1.5, 1.5, "F");
+        doc.setTextColor(...sage);
+        doc.setFontSize(6.5);
+        doc.setFont("helvetica", "bold");
+        doc.text(label, x + 4, 49);
+        doc.setTextColor(...forest);
+        doc.setFont("times", "normal");
+        doc.setFontSize(14);
+        doc.text(String(value), x + 4, 57);
+      });
+
+      autoTable(doc, {
+        startY: 67,
+        margin: { left: 14, right: 14, bottom: 15 },
+        head: [["#", "Guest", "WhatsApp", "Attendance", "Allocation", "Status", "Reference", "Submitted"]],
+        body: sortedGuests.map((guest, index) => [
+          index + 1,
+          guest.full_name,
+          guest.whatsapp,
+          guest.attendance === "accepts" ? "Accepts" : "Declines",
+          guest.allocation === 2 ? "Couple" : "Individual",
+          guest.status,
+          guest.guest_reference || "-",
+          new Date(guest.submitted_at).toLocaleDateString("en-ZM", { day: "2-digit", month: "short", year: "numeric" }),
+        ]),
+        theme: "grid",
+        styles: { font: "helvetica", fontSize: 7.2, cellPadding: 2, lineColor: [224, 220, 211], lineWidth: 0.15, textColor: forest, valign: "middle" },
+        headStyles: { fillColor: forest, textColor: [255, 255, 255], fontStyle: "bold", fontSize: 6.8, cellPadding: 2.3 },
+        alternateRowStyles: { fillColor: ivory },
+        columnStyles: {
+          0: { cellWidth: 10, halign: "center" },
+          1: { cellWidth: 57 },
+          2: { cellWidth: 38 },
+          3: { cellWidth: 32 },
+          4: { cellWidth: 29 },
+          5: { cellWidth: 32 },
+          6: { cellWidth: 34, fontStyle: "bold" },
+          7: { cellWidth: 37 },
+        },
+        didDrawPage: ({ pageNumber }) => {
+          const pageHeight = doc.internal.pageSize.getHeight();
+          doc.setDrawColor(...gold);
+          doc.line(14, pageHeight - 10, 283, pageHeight - 10);
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(7);
+          doc.setTextColor(...sage);
+          doc.text("Private wedding administration record", 14, pageHeight - 5.5);
+          doc.text(`Page ${pageNumber}`, 283, pageHeight - 5.5, { align: "right" });
+        },
+      });
+
+      const dateStamp = generatedAt.toISOString().slice(0, 10);
+      doc.save(`james-diana-guest-list-${dateStamp}.pdf`);
+    } finally {
+      setExportingPdf(false);
+    }
+  }
+
   if (authorized === null) return <div className="admin-loading">Opening guest list…</div>;
   if (!authorized) return <Login title="Wedding administration" />;
 
@@ -140,6 +240,10 @@ export function AdminShell() {
         </tbody></table></div>
       </section>
       {access?.role === "owner" && <AdminUsers currentId={access.id} />}
+      <section className="pdf-export-panel" aria-labelledby="pdf-export-title">
+        <div><p className="admin-eyebrow">Guest records</p><h2 id="pdf-export-title">Download the complete list</h2><p>Creates a clean, print-ready PDF with RSVP totals and every guest record.</p></div>
+        <button type="button" onClick={downloadGuestList} disabled={!guests.length || exportingPdf}><Download size={18} /> {exportingPdf ? "Preparing PDF..." : "Download guest list PDF"}</button>
+      </section>
     </main>
     {selected && <div className="drawer-backdrop" onMouseDown={() => setSelected(null)}><aside className="guest-drawer" onMouseDown={e => e.stopPropagation()}><button className="drawer-close" aria-label="Close guest details" onClick={() => setSelected(null)}><X /></button><p className="admin-eyebrow">Guest details</p><h2>{selected.full_name}</h2><dl><div><dt>WhatsApp</dt><dd>{selected.whatsapp}</dd></div><div><dt>Attendance</dt><dd>{selected.attendance === "accepts" ? "Joyfully accepts" : "Regretfully declines"}</dd></div><div><dt>Allocation</dt><dd>{selected.allocation === 2 ? "Couple" : "1 Person"}</dd></div><div><dt>Status</dt><dd>{selected.status}</dd></div><div><dt>Reference</dt><dd>{selected.guest_reference || "Generated after approval"}</dd></div></dl>
       {selected.guest_reference && <div className="qr-card">{qr && <img src={qr} alt={`QR code for ${selected.guest_reference}`} />}<strong>{selected.guest_reference}</strong></div>}
