@@ -184,12 +184,13 @@ export function AdminShell() {
       autoTable(doc, {
         startY: 67,
         margin: { left: 14, right: 14, bottom: 15 },
-        head: [["#", "Guest", "WhatsApp", "Attendance", "Allocation", "Status", "Reference", "Submitted"]],
+        head: [["#", "Guest", "WhatsApp", "Attendance", "Family", "Allocation", "Status", "Reference", "Submitted"]],
         body: sortedGuests.map((guest, index) => [
           index + 1,
           guest.full_name,
           guest.whatsapp,
           guest.attendance === "accepts" ? "Accepts" : "Declines",
+          guest.guest_side === "bride" ? "Bride" : guest.guest_side === "groom" ? "Groom" : "Not set",
           guest.allocation === 2 ? "Couple" : "Individual",
           guest.status,
           guest.guest_reference || "-",
@@ -200,14 +201,27 @@ export function AdminShell() {
         headStyles: { fillColor: forest, textColor: [255, 255, 255], fontStyle: "bold", fontSize: 6.8, cellPadding: 2.3 },
         alternateRowStyles: { fillColor: ivory },
         columnStyles: {
-          0: { cellWidth: 10, halign: "center" },
-          1: { cellWidth: 57 },
-          2: { cellWidth: 38 },
-          3: { cellWidth: 32 },
-          4: { cellWidth: 29 },
-          5: { cellWidth: 32 },
-          6: { cellWidth: 34, fontStyle: "bold" },
-          7: { cellWidth: 37 },
+          0: { cellWidth: 8, halign: "center" },
+          1: { cellWidth: 45 },
+          2: { cellWidth: 32 },
+          3: { cellWidth: 28 },
+          4: { cellWidth: 22, fontStyle: "bold", halign: "center" },
+          5: { cellWidth: 24 },
+          6: { cellWidth: 28 },
+          7: { cellWidth: 32, fontStyle: "bold" },
+          8: { cellWidth: 35 },
+        },
+        didParseCell: ({ section, column, cell }) => {
+          if (section !== "body" || column.index !== 4) return;
+          if (cell.raw === "Bride") {
+            cell.styles.textColor = [125, 79, 72];
+            cell.styles.fillColor = [244, 231, 226];
+          } else if (cell.raw === "Groom") {
+            cell.styles.textColor = [49, 84, 64];
+            cell.styles.fillColor = [229, 239, 231];
+          } else {
+            cell.styles.textColor = [105, 109, 103];
+          }
         },
         didDrawPage: ({ pageNumber }) => {
           const pageHeight = doc.internal.pageSize.getHeight();
@@ -240,9 +254,9 @@ export function AdminShell() {
       </section>
       <section className="guest-panel">
         <div className="table-tools"><label><Search size={17} /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search name, phone or reference" /></label><div className="filters">{(["All", "Pending", "Approved", "Declined", "Checked In"] as const).map(item => <button className={filter === item ? "active" : ""} onClick={() => setFilter(item)} key={item}>{item}</button>)}</div></div>
-        <div className="table-wrap"><table><thead><tr><th>Guest</th><th>Attendance</th><th>Allocation</th><th>Status</th><th>Reference</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>
-          {visible.map(guest => <tr key={guest.id}><td><strong>{guest.full_name}</strong><span>{guest.whatsapp}</span></td><td>{guest.attendance === "accepts" ? "Joyfully accepts" : "Regretfully declines"}</td><td><select aria-label={`Allocation for ${guest.full_name}`} value={guest.allocation} onChange={e => act(guest.id, "update", { allocation: Number(e.target.value) })}><option value={1}>Individual</option><option value={2}>Couple</option></select></td><td><span className={`status status-${guest.status.toLowerCase().replace(" ", "-")}`}>{guest.status}</span></td><td className="reference">{guest.guest_reference || "—"}</td><td>{new Date(guest.submitted_at).toLocaleDateString("en-ZM", { day: "2-digit", month: "short", year: "numeric" })}</td><td><div className="row-actions">{guest.status === "Pending" && <><button className="approve" onClick={() => act(guest.id, "approve", { allocation: guest.allocation })}><Check size={15} /> Approve</button><button onClick={() => act(guest.id, "reject")}><X size={15} /> Reject</button></>}<button onClick={() => { setDrawerNotice(""); setSelected(guest); }}>View</button></div></td></tr>)}
-          {!visible.length && <tr><td colSpan={7} className="empty-row">No guests match this view.</td></tr>}
+        <div className="table-wrap"><table><thead><tr><th>Guest</th><th>Attendance</th><th>Family</th><th>Allocation</th><th>Status</th><th>Reference</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>
+          {visible.map(guest => <tr key={guest.id}><td><strong>{guest.full_name}</strong><span>{guest.whatsapp}</span></td><td>{guest.attendance === "accepts" ? "Joyfully accepts" : "Regretfully declines"}</td><td><span className={`family-badge ${guest.guest_side ? `family-${guest.guest_side}` : "family-unknown"}`}>{guest.guest_side ? `${guest.guest_side === "bride" ? "Bride" : "Groom"}’s guest` : "Not set"}</span></td><td><select aria-label={`Allocation for ${guest.full_name}`} value={guest.allocation} onChange={e => act(guest.id, "update", { allocation: Number(e.target.value) })}><option value={1}>Individual</option><option value={2}>Couple</option></select></td><td><span className={`status status-${guest.status.toLowerCase().replace(" ", "-")}`}>{guest.status}</span></td><td className="reference">{guest.guest_reference || "—"}</td><td>{new Date(guest.submitted_at).toLocaleDateString("en-ZM", { day: "2-digit", month: "short", year: "numeric" })}</td><td><div className="row-actions">{guest.status === "Pending" && <><button className="approve" onClick={() => act(guest.id, "approve", { allocation: guest.allocation })}><Check size={15} /> Approve</button><button onClick={() => act(guest.id, "reject")}><X size={15} /> Reject</button></>}<button onClick={() => { setDrawerNotice(""); setSelected(guest); }}>View</button></div></td></tr>)}
+          {!visible.length && <tr><td colSpan={8} className="empty-row">No guests match this view.</td></tr>}
         </tbody></table></div>
       </section>
       {access?.role === "owner" && <AdminUsers currentId={access.id} />}
@@ -250,7 +264,7 @@ export function AdminShell() {
         <button type="button" onClick={downloadGuestList} disabled={!guests.length || exportingPdf}><Download size={18} /> {exportingPdf ? "Preparing PDF..." : "Download guest list PDF"}</button>
       </div>
     </main>
-    {selected && <div className="drawer-backdrop" onMouseDown={() => setSelected(null)}><aside className="guest-drawer" onMouseDown={e => e.stopPropagation()}><button className="drawer-close" aria-label="Close guest details" onClick={() => setSelected(null)}><X /></button><p className="admin-eyebrow">Guest details</p><h2>{selected.full_name}</h2><dl><div><dt>WhatsApp</dt><dd>{selected.whatsapp}</dd></div><div><dt>Attendance</dt><dd>{selected.attendance === "accepts" ? "Joyfully accepts" : "Regretfully declines"}</dd></div><div><dt>Allocation</dt><dd>{selected.allocation === 2 ? "Couple" : "1 Person"}</dd></div><div><dt>Status</dt><dd>{selected.status}</dd></div><div><dt>Reference</dt><dd>{selected.guest_reference || "Generated after approval"}</dd></div></dl>
+    {selected && <div className="drawer-backdrop" onMouseDown={() => setSelected(null)}><aside className="guest-drawer" onMouseDown={e => e.stopPropagation()}><button className="drawer-close" aria-label="Close guest details" onClick={() => setSelected(null)}><X /></button><p className="admin-eyebrow">Guest details</p><h2>{selected.full_name}</h2><dl><div><dt>WhatsApp</dt><dd>{selected.whatsapp}</dd></div><div><dt>Family</dt><dd><span className={`family-badge ${selected.guest_side ? `family-${selected.guest_side}` : "family-unknown"}`}>{selected.guest_side ? `${selected.guest_side === "bride" ? "Bride" : "Groom"}’s guest` : "Not set"}</span></dd></div><div><dt>Attendance</dt><dd>{selected.attendance === "accepts" ? "Joyfully accepts" : "Regretfully declines"}</dd></div><div><dt>Allocation</dt><dd>{selected.allocation === 2 ? "Couple" : "1 Person"}</dd></div><div><dt>Status</dt><dd>{selected.status}</dd></div><div><dt>Reference</dt><dd>{selected.guest_reference || "Generated after approval"}</dd></div></dl>
       {selected.guest_reference && <div className="qr-card">{qr && <img src={qr} alt={`QR code for ${selected.guest_reference}`} />}<strong>{selected.guest_reference}</strong></div>}
       <label className="notes-label">Admin notes<textarea defaultValue={selected.admin_notes} onBlur={e => act(selected.id, "update", { notes: e.target.value })} placeholder="Private notes about this guest" /></label>
       {selected.status === "Approved" && <div className="confirmation-actions"><a className="whatsapp-button" href={whatsappHref(selected.whatsapp, confirmationMessage(selected))} target="_blank" rel="noreferrer">Open in WhatsApp <ExternalLink size={16} /></a><button className="admin-button secondary" onClick={() => copyConfirmation(selected)}><Copy size={16} /> Copy confirmation</button><button className="admin-button secondary" onClick={() => act(selected.id, "mark-sent")}><Check size={16} /> Mark as sent</button><button className="admin-button secondary" onClick={() => act(selected.id, "check-in")}>Check in guest</button></div>}

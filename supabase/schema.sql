@@ -5,6 +5,7 @@ create table if not exists public.rsvps (
   full_name text not null check (char_length(full_name) between 2 and 120),
   whatsapp text not null unique,
   attendance text not null check (attendance in ('accepts', 'declines')),
+  guest_side text check (guest_side in ('bride', 'groom')),
   submitted_at timestamptz not null default now(),
   status text not null default 'Pending' check (status in ('Pending', 'Approved', 'Declined', 'Checked In')),
   allocation integer not null default 1 check (allocation in (1, 2)),

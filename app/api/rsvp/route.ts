@@ -7,6 +7,7 @@ const schema = z.object({
   fullName: z.string().trim().min(2).max(120),
   whatsapp: z.string().trim().min(9).max(24),
   attendance: z.enum(["accepts", "declines"]),
+  guestSide: z.enum(["bride", "groom"]),
   allocationAccepted: z.literal(true),
   whatsappConsent: z.literal(true),
   website: z.string().max(0),
@@ -32,7 +33,7 @@ export async function POST(request: Request) {
   }
 
   try {
-    const record = await createRsvp({ full_name: parsed.data.fullName, whatsapp: phone, attendance: parsed.data.attendance });
+    const record = await createRsvp({ full_name: parsed.data.fullName, whatsapp: phone, attendance: parsed.data.attendance, guest_side: parsed.data.guestSide });
     return NextResponse.json({ firstName: record.full_name.split(/\s+/)[0] }, { status: 201 });
   } catch (error) {
     if (error instanceof Error && (error.message === "DUPLICATE" || error.message.includes("duplicate"))) {

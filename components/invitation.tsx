@@ -85,6 +85,7 @@ export function Invitation() {
         fullName: data.get("fullName"),
         whatsapp: data.get("whatsapp"),
         attendance: data.get("attendance"),
+        guestSide: data.get("guestSide"),
         allocationAccepted: data.get("allocationAccepted") === "on",
         whatsappConsent: data.get("whatsappConsent") === "on",
         website: data.get("website") || "",
@@ -197,6 +198,7 @@ export function Invitation() {
             <form onSubmit={submitRsvp}>
               <div className="field"><label htmlFor="fullName">Full name</label><input id="fullName" name="fullName" autoComplete="name" required minLength={2} placeholder="Your full name" /></div>
               <div className="field"><label htmlFor="whatsapp">WhatsApp number</label><input id="whatsapp" name="whatsapp" autoComplete="tel" inputMode="tel" required placeholder="0971 234 567" /><small>Zambian formats such as 0971234567 or +260971234567</small></div>
+              <fieldset className="side-fieldset"><legend>Which side invited you?</legend><div className="side-choices"><label className="side-choice side-choice-bride"><input type="radio" name="guestSide" value="bride" required /><span>Bride’s guest</span></label><label className="side-choice side-choice-groom"><input type="radio" name="guestSide" value="groom" required /><span>Groom’s guest</span></label></div></fieldset>
               <fieldset><legend>Attendance</legend><label className="choice"><input type="radio" name="attendance" value="accepts" required /><span>Joyfully accepts</span></label><label className="choice"><input type="radio" name="attendance" value="declines" required /><span>Regretfully declines</span></label></fieldset>
               <label className="agreement"><input type="checkbox" name="allocationAccepted" required /><span>I understand that attendance is limited to the number of guests allocated to this invitation.</span></label>
               <label className="agreement whatsapp-consent"><input type="checkbox" name="whatsappConsent" required /><span>I agree to receive my wedding confirmation and important event updates from James &amp; Diana via WhatsApp.</span></label>

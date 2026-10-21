@@ -152,6 +152,7 @@ fieldset legend { margin-bottom: 1rem; }
 .choice { display: flex; align-items: center; min-height: 52px; padding: .7rem 1rem; border: 1px solid #d5caba; cursor: pointer; }
 .choice:has(input:checked) { border-color: var(--deep-sage); background: #edf0e9; }
 .choice input, .agreement input { width: 18px; height: 18px; margin-right: .7rem; accent-color: var(--deep-sage); }
+.side-fieldset { margin: 1.7rem 0 2rem; }.side-fieldset legend { margin-bottom: .8rem; }.side-choices { display: flex; gap: .7rem; }.side-choice { display: inline-flex; flex: 1 1 0; min-height: 50px; align-items: center; gap: .55rem; padding: .65rem .85rem; border: 1px solid #d5caba; cursor: pointer; transition: background .2s ease, border-color .2s ease; }.side-choice input { width: 17px; height: 17px; margin: 0; accent-color: #315440; }.side-choice span { font-size: .84rem; }.side-choice-bride:has(input:checked) { border-color: #a56d62; background: #f4e7e2; color: #7d4f48; }.side-choice-groom:has(input:checked) { border-color: #55745d; background: #e5efe7; color: #315440; }.side-choice:focus-within { outline: 2px solid var(--gold); outline-offset: 2px; }
 .agreement { display: flex; align-items: flex-start; margin: 2rem 0; color: #4e5a50; font-size: .88rem; line-height: 1.5; }
 .agreement input { flex: 0 0 auto; margin-top: .15rem; }
 .agreement + .agreement { margin-top: -1rem; }
@@ -283,6 +284,7 @@ td { padding: 1rem; border-top: 1px solid #ece9e2; }
 td:first-child strong, td:first-child span { display: block; } td:first-child span { color: #778078; margin-top: .2rem; font-size: .72rem; }
 td select { min-height: 36px; padding: .3rem .5rem; border: 1px solid #d9d5ca; color: var(--forest); background: #fff; }
 .status { display: inline-flex; padding: .25rem .55rem; border-radius: 999px; font-size: .68rem; background: #eceae5; }.status-approved { color: #315b43; background: #e1eee5; }.status-declined { color: #77453f; background: #f2e5e3; }.status-checked-in { color: #fff; background: var(--deep-sage); }.status-pending { color: #765f2c; background: #f3ead3; }
+.family-badge { display: inline-flex !important; align-items: center; padding: .32rem .58rem; border-radius: 999px; font-size: .68rem !important; font-weight: 700; white-space: nowrap; }.family-bride { color: #7d4f48; background: #f4e7e2; }.family-groom { color: #315440; background: #e5efe7; }.family-unknown { color: #646b65; background: #eceae5; }
 .reference { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-weight: 700; }
 .row-actions { display: flex; gap: .35rem; }.row-actions button { display: inline-flex; align-items: center; gap: .25rem; min-height: 32px; padding: .35rem .55rem; border: 1px solid #d6d1c6; color: #3c493f; background: #fff; font-size: .68rem; cursor: pointer; }.row-actions .approve { color: #fff; border-color: var(--deep-sage); background: var(--deep-sage); }
 .empty-row { height: 170px; color: #7a817b; text-align: center; }
