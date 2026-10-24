@@ -112,13 +112,10 @@ h2 { margin: 0; font-size: clamp(3rem, 7vw, 6.4rem); letter-spacing: -.045em; }
 .gallery { background: #e3ddd1; }
 .gallery-copy { grid-column: 1 / -1; padding: 0 0 2.3rem; }
 .gallery-copy h2 { max-width: 850px; }
-.gallery-grid { display: grid; grid-auto-flow: dense; grid-auto-rows: clamp(220px, 24vw, 340px); grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1rem; }
-.gallery figure { position: relative; min-width: 0; margin: 0; overflow: hidden; background: var(--sage); }
-.gallery figure img { object-fit: cover; transition: transform 1s cubic-bezier(.2,.7,.2,1); }
+.gallery-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); align-items: start; gap: 1rem; }
+.gallery figure { min-width: 0; margin: 0; overflow: hidden; background: var(--sage); }
+.gallery figure img { display: block; width: 100%; height: auto; transition: transform 1s cubic-bezier(.2,.7,.2,1); }
 .gallery figure:hover img { transform: scale(1.035); }
-.gallery-item--featured { grid-column: span 2; grid-row: span 2; }
-.gallery-item--wide { grid-column: span 2; }
-.gallery-item--panorama { grid-column: span 3; }
 
 .gift { position: relative; }
 .gift::before { content: "J & D"; position: absolute; right: -2vw; bottom: -3vw; color: rgba(255,255,255,.03); font-family: var(--serif); font-size: min(24vw, 20rem); white-space: nowrap; }
@@ -228,10 +225,7 @@ footer p { margin: 0; } footer a { color: #efe5d1; text-underline-offset: 3px; }
   .timeline time { grid-column: 2; text-align: left; }
   .timeline-dot { grid-column: 1; grid-row: 1 / 3; }
   .timeline article div { grid-column: 2; }
-  .gallery-grid { grid-auto-rows: clamp(190px, 56vw, 300px); grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
-  .gallery-item--featured { grid-column: 1 / -1; grid-row: span 2; }
-  .gallery-item--wide { grid-column: 1 / -1; }
-  .gallery-item--panorama { grid-column: span 1; }
+  .gallery-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: .65rem; }
   .gift-values { grid-template-columns: 1fr; }
   .rsvp-panel { margin-inline: -.25rem; }
   .closing { min-height: 70svh; }

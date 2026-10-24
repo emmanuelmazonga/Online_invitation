@@ -172,8 +172,8 @@ export function Invitation() {
         <div className="gallery-copy scroll-reveal" data-reveal="heading"><p className="eyebrow">A little joy</p><h2>Moments held close</h2></div>
         <div className="gallery-grid">
           {collageImages.map((image, index) => (
-            <figure className={`gallery-item gallery-item--${image.shape} scroll-reveal reveal-delay-${index % 3}`} data-reveal="image" key={image.src}>
-              <Image src={image.src} fill sizes={image.shape === "portrait" ? "(max-width: 700px) 46vw, 24vw" : image.shape === "panorama" ? "(max-width: 700px) 46vw, 72vw" : "(max-width: 700px) 92vw, 48vw"} alt={image.alt} style={"position" in image ? { objectPosition: image.position } : undefined} />
+            <figure className={`gallery-item scroll-reveal reveal-delay-${index % 3}`} data-reveal="image" key={image.src}>
+              <Image src={image.src} width={854} height={1280} sizes="(max-width: 700px) 46vw, 24vw" alt={image.alt} />
             </figure>
           ))}
         </div>
