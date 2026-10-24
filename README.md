@@ -2,7 +2,7 @@
 
 A mobile-first digital wedding invitation with RSVP approval, WhatsApp confirmation, guest allocation, QR references, and entrance check-in.
 
-Confirmed ceremony time: **09:00–11:00 hrs** at the Catholic Cathedral of Christ the King.
+Confirmed ceremony time: **09:00–11:00 hrs** at St Anthony of Padua Parish, Franciscan Center Ndola.
 
 ## Local preview
 

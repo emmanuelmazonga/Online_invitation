@@ -138,9 +138,9 @@ export function Invitation() {
           <article className="venue venue-church scroll-reveal" data-reveal="left">
             <span className="venue-number">01</span>
             <p className="eyebrow">Holy Matrimony</p>
-            <h3>Catholic Cathedral<br />of Christ the King</h3>
+            <h3>St Anthony of Padua Parish,<br />Franciscan Center Ndola</h3>
             <dl><div><dt>Date</dt><dd>21 November 2026</dd></div><div><dt>Time</dt><dd>09:00–11:00 hrs</dd></div><div><dt>Place</dt><dd>Ndola, Zambia</dd></div></dl>
-            <a className="text-link" href="https://maps.app.goo.gl/1PqmyYesE1EJKpfD7" target="_blank" rel="noreferrer"><MapPin size={16} /> View location</a>
+            <a className="text-link" href="https://maps.app.goo.gl/siwPP7emYgM9XUvW7" target="_blank" rel="noreferrer"><MapPin size={16} /> View location</a>
           </article>
           <article className="venue venue-reception scroll-reveal reveal-delay-1" data-reveal="right">
             <span className="venue-number">02</span>
@@ -156,7 +156,7 @@ export function Invitation() {
         <p className="eyebrow scroll-reveal">21 November 2026</p>
         <h2 className="scroll-reveal reveal-delay-1" data-reveal="heading">Order of the day</h2>
         <div className="timeline">
-          <article className="scroll-reveal" data-reveal="left"><time>09:00–11:00 hrs</time><span className="timeline-dot" /><div><h3>Holy Matrimony</h3><p>Catholic Cathedral of Christ the King</p></div></article>
+          <article className="scroll-reveal" data-reveal="left"><time>09:00–11:00 hrs</time><span className="timeline-dot" /><div><h3>Holy Matrimony</h3><p>St Anthony of Padua Parish, Franciscan Center Ndola</p></div></article>
           <article className="scroll-reveal reveal-delay-1" data-reveal="left"><time>17:00 hrs</time><span className="timeline-dot" /><div><h3>Reception</h3><p>Izu Hotel</p></div></article>
         </div>
         <aside className="dress-code scroll-reveal" id="dress-code" data-reveal="scale" aria-labelledby="dress-code-title">
