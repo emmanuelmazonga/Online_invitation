@@ -5,7 +5,7 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { CalendarDays, ChevronDown, MapPin } from "lucide-react";
 import { closingImage, collageImages, heroImage } from "@/lib/site-images";
 
-const weddingDate = new Date("2026-11-21T09:00:00+02:00");
+const weddingDate = new Date("2026-11-21T11:00:00+02:00");
 
 function useCountdown() {
   const [now, setNow] = useState<number | null>(null);
@@ -126,7 +126,7 @@ export function Invitation() {
         <p className="eyebrow light scroll-reveal">The celebration begins in</p>
         <h2 className="scroll-reveal reveal-delay-1" data-reveal="heading">Until We Say “I Do”</h2>
         <div className="scroll-reveal reveal-delay-2" data-reveal="scale"><Countdown /></div>
-        <p className="fine-print scroll-reveal reveal-delay-2">Counting down to 09:00 hrs · Africa/Lusaka time</p>
+        <p className="fine-print scroll-reveal reveal-delay-2">Counting down to 11:00 hrs · Africa/Lusaka time</p>
       </section>
 
       <section className="venues section">
@@ -139,7 +139,7 @@ export function Invitation() {
             <span className="venue-number">01</span>
             <p className="eyebrow">Holy Matrimony</p>
             <h3>St Anthony of Padua Parish,<br />Franciscan Center Ndola</h3>
-            <dl><div><dt>Date</dt><dd>21 November 2026</dd></div><div><dt>Time</dt><dd>09:00 hrs</dd></div><div><dt>Place</dt><dd>Ndola, Zambia</dd></div></dl>
+            <dl><div><dt>Date</dt><dd>21 November 2026</dd></div><div><dt>Time</dt><dd>11:00 hrs</dd></div><div><dt>Place</dt><dd>Ndola, Zambia</dd></div></dl>
             <a className="text-link" href="https://maps.app.goo.gl/siwPP7emYgM9XUvW7" target="_blank" rel="noreferrer"><MapPin size={16} /> View location</a>
           </article>
           <article className="venue venue-reception scroll-reveal reveal-delay-1" data-reveal="right">
@@ -156,7 +156,7 @@ export function Invitation() {
         <p className="eyebrow scroll-reveal">21 November 2026</p>
         <h2 className="scroll-reveal reveal-delay-1" data-reveal="heading">Order of the day</h2>
         <div className="timeline">
-          <article className="scroll-reveal" data-reveal="left"><time>09:00 hrs</time><span className="timeline-dot" /><div><h3>Holy Matrimony</h3><p>St Anthony of Padua Parish, Franciscan Center Ndola</p></div></article>
+          <article className="scroll-reveal" data-reveal="left"><time>11:00 hrs</time><span className="timeline-dot" /><div><h3>Holy Matrimony</h3><p>St Anthony of Padua Parish, Franciscan Center Ndola</p></div></article>
           <article className="scroll-reveal reveal-delay-1" data-reveal="left"><time>17:00 hrs</time><span className="timeline-dot" /><div><h3>Reception</h3><p>Izu Hotel</p></div></article>
         </div>
         <aside className="dress-code scroll-reveal" id="dress-code" data-reveal="scale" aria-labelledby="dress-code-title">
@@ -190,7 +190,7 @@ export function Invitation() {
       </section>
 
       <section className="rsvp section" id="rsvp">
-        <div className="rsvp-intro scroll-reveal" data-reveal="left"><p className="eyebrow">Répondez s’il vous plaît</p><h2>Will You Join Us?</h2><p>We would be honoured to celebrate this special day with you. Kindly confirm your attendance below.</p><p className="queries-line">Questions about the wedding?</p><div className="queries-contacts"><a className="queries-button" href="https://wa.me/260750774920?text=Hello%20Emmanuel%2C%20I%20have%20a%20question%20about%20James%20%26%20Diana%27s%20wedding." target="_blank" rel="noreferrer">WhatsApp Emmanuel Mazonga · +260 750 774 920</a><a className="queries-button" href="https://wa.me/260760062198?text=Hello%20Nasanta%2C%20I%20have%20a%20question%20about%20James%20%26%20Diana%27s%20wedding." target="_blank" rel="noreferrer">WhatsApp Nasanta Shatewa · +260 760 062 198</a></div><Ornament /></div>
+        <div className="rsvp-intro scroll-reveal" data-reveal="left"><p className="eyebrow">Répondez s’il vous plaît</p><h2>Will You Join Us?</h2><p>We would be honoured to celebrate this special day with you. Kindly confirm your attendance below.</p><p className="queries-line">WhatsApp</p><div className="queries-contacts"><a className="queries-contact" href="https://wa.me/260750774920?text=Hello%20Emmanuel%2C%20I%20have%20a%20question%20about%20James%20%26%20Diana%27s%20wedding." target="_blank" rel="noreferrer"><strong>Emmanuel Mazonga</strong><span>+260 750 774 920</span></a><a className="queries-contact" href="https://wa.me/260760062198?text=Hello%20Nasanta%2C%20I%20have%20a%20question%20about%20James%20%26%20Diana%27s%20wedding." target="_blank" rel="noreferrer"><strong>Nasanta Shatewa</strong><span>+260 760 062 198</span></a></div><Ornament /></div>
         <div className="rsvp-panel scroll-reveal reveal-delay-1" data-reveal="right">
           {result.state === "success" ? (
             <div className="success" role="status"><span className="success-mark">✓</span><h3>Thank you, {result.message}.</h3><p>Your RSVP has been received.</p><p>Once your attendance has been approved, you will receive your unique guest reference via WhatsApp. Please keep it safely, as it will be required for verification at the event entrance.</p></div>
