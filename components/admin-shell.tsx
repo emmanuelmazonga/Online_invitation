@@ -3,7 +3,7 @@
 import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
 import QRCode from "qrcode";
 import { Check, Copy, Download, ExternalLink, LockKeyhole, LogOut, Plus, RotateCcw, Search, ShieldCheck, Trash2, Users, X } from "lucide-react";
-import type { AdminRole, AdminUserRecord, RsvpRecord, RsvpStatus } from "@/lib/types";
+import type { AdminRole, AdminUserRecord, PartyType, RsvpRecord, RsvpStatus } from "@/lib/types";
 import { whatsappHref } from "@/lib/phone";
 
 function Login({ title = "Private access", onSuccess }: { title?: string; onSuccess?: () => void }) {
@@ -55,8 +55,37 @@ function AdminUsers({ currentId }: { currentId: string }) {
   return <section className="admin-users-panel"><div className="admin-users-heading"><div><p className="admin-eyebrow">Owner controls</p><h2>Administrator access</h2></div><p>Create a private account and choose exactly what that person can do.</p></div><form className="admin-user-form" onSubmit={add}><input name="fullName" aria-label="Administrator name" placeholder="Full name" required /><input name="email" aria-label="Administrator email" type="email" placeholder="Email address" required /><input name="password" aria-label="Initial password" type="password" minLength={12} autoComplete="new-password" placeholder="Initial password (12+ characters)" required /><select name="role" aria-label="Administrator role" defaultValue="admin"><option value="owner">Owner</option><option value="admin">Admin</option><option value="check_in">Check-in only</option></select><button type="submit"><Plus size={16} /> Create account</button></form>{error && <p className="admin-error admin-users-error">{error}</p>}<div className="admin-user-list">{admins.map(admin => <article key={admin.id} className={!admin.active ? "inactive" : ""}><div><strong>{admin.full_name}</strong><span>{admin.email}</span><small>{admin.user_id ? "Account ready" : "Password setup required"}</small></div><select aria-label={`Role for ${admin.full_name}`} value={admin.role} disabled={admin.id === currentId} onChange={event => update(admin.id, { role: event.target.value as AdminRole })}><option value="owner">Owner</option><option value="admin">Admin</option><option value="check_in">Check-in only</option></select><button disabled={admin.id === currentId} onClick={() => update(admin.id, { active: !admin.active })}>{admin.active ? "Disable" : "Enable"}</button></article>)}</div></section>;
 }
 
+function guestTypeLabel(side: RsvpRecord["guest_side"]) {
+  if (side === "bride" || side === "bride_guest") return "Bride’s guest";
+  if (side === "groom" || side === "groom_guest") return "Groom’s guest";
+  if (side === "bride_family") return "Bride’s family";
+  if (side === "groom_family") return "Groom’s family";
+  return "Not set";
+}
+
+function partyTypeFor(guest: RsvpRecord): PartyType {
+  return guest.party_type ?? (guest.allocation === 2 ? "couple" : "individual");
+}
+
+function partyTypeLabel(guest: RsvpRecord) {
+  const partyType = partyTypeFor(guest);
+  return partyType === "plus_one" ? "Individual + one" : partyType === "couple" ? "Couple" : "Individual";
+}
+
+function guestNames(guest: RsvpRecord) {
+  return partyTypeFor(guest) === "plus_one" && guest.plus_one_name ? `${guest.full_name} + ${guest.plus_one_name}` : guest.full_name;
+}
+
+function guestTypeClass(side: RsvpRecord["guest_side"]) {
+  if (side === "bride") return "family-bride_guest";
+  if (side === "groom") return "family-groom_guest";
+  return side ? `family-${side}` : "family-unknown";
+}
+
 function confirmationMessage(guest: RsvpRecord) {
-  return `James & Diana — Wedding Confirmation 💍\n\nDear ${guest.full_name},\n\nWe’re delighted to confirm your attendance at James Konkola & Diana Mazonga's wedding on 21 November 2026\n\n🪪 Unique Guest reference: *${guest.guest_reference}*\n👤 Guest allocation: *${guest.allocation === 2 ? "Couple" : "Individual"}*\n\nPlease keep this reference safe and present it at the entrance.\nWe look forward to celebrating with you.\nQueries: Emmanuel Mazonga +260 750 774 920 or Nasanta Shatewa +260 760 062 198\n\nWith love,\nJames & Diana`;
+  const allocation = partyTypeLabel(guest);
+  const guestName = partyTypeFor(guest) === "plus_one" && guest.plus_one_name ? `${guest.full_name} and ${guest.plus_one_name}` : guest.full_name;
+  return `James & Diana — Wedding Confirmation 💍\n\nDear ${guestName},\n\nWe’re delighted to confirm your attendance at James Konkola & Diana Mazonga's wedding on 21 November 2026\n\n🪪 Unique Guest reference: *${guest.guest_reference}*\n👤 Guest allocation: *${allocation}*\n\nPlease keep this reference safe and present it at the entrance.\nWe look forward to celebrating with you.\nQueries: Emmanuel Mazonga +260 750 774 920 or Nasanta Shatewa +260 760 062 198\n\nWith love,\nJames & Diana`;
 }
 
 export function AdminShell() {
@@ -90,7 +119,7 @@ export function AdminShell() {
     checked: guests.filter(g => g.status === "Checked In").length,
   }), [guests]);
   const visible = guests.filter((guest) => {
-    const haystack = `${guest.full_name} ${guest.whatsapp} ${guest.guest_reference || ""}`.toLowerCase();
+    const haystack = `${guest.full_name} ${guest.plus_one_name || ""} ${guest.whatsapp} ${guest.guest_reference || ""}`.toLowerCase();
     return (filter === "All" || guest.status === filter) && haystack.includes(query.toLowerCase());
   });
 
@@ -115,7 +144,7 @@ export function AdminShell() {
   }
 
   async function deleteGuest(guest: RsvpRecord) {
-    if (!window.confirm(`Permanently delete ${guest.full_name}'s RSVP? This cannot be undone.`)) return;
+    if (!window.confirm(`Permanently delete ${guestNames(guest)}'s RSVP? This cannot be undone.`)) return;
     setDrawerNotice("");
     const response = await fetch("/api/admin/guests", { method: "DELETE", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ id: guest.id }) });
     const data = await response.json();
@@ -184,14 +213,14 @@ export function AdminShell() {
       autoTable(doc, {
         startY: 67,
         margin: { left: 14, right: 14, bottom: 15 },
-        head: [["#", "Guest", "WhatsApp", "Attendance", "Family", "Allocation", "Status", "Reference", "Submitted"]],
+        head: [["#", "Guest", "WhatsApp", "Attendance", "Type of guest", "Party", "Status", "Reference", "Submitted"]],
         body: sortedGuests.map((guest, index) => [
           index + 1,
-          guest.full_name,
+          guestNames(guest),
           guest.whatsapp,
           guest.attendance === "accepts" ? "Accepts" : "Declines",
-          guest.guest_side === "bride" ? "Bride" : guest.guest_side === "groom" ? "Groom" : "Not set",
-          guest.allocation === 2 ? "Couple" : "Individual",
+          guestTypeLabel(guest.guest_side),
+          partyTypeLabel(guest),
           guest.status,
           guest.guest_reference || "-",
           new Date(guest.submitted_at).toLocaleDateString("en-ZM", { day: "2-digit", month: "short", year: "numeric" }),
@@ -204,19 +233,19 @@ export function AdminShell() {
           0: { cellWidth: 8, halign: "center" },
           1: { cellWidth: 45 },
           2: { cellWidth: 32 },
-          3: { cellWidth: 28 },
-          4: { cellWidth: 22, fontStyle: "bold", halign: "center" },
-          5: { cellWidth: 24 },
+          3: { cellWidth: 26 },
+          4: { cellWidth: 35, fontStyle: "bold" },
+          5: { cellWidth: 27 },
           6: { cellWidth: 28 },
           7: { cellWidth: 32, fontStyle: "bold" },
-          8: { cellWidth: 35 },
+          8: { cellWidth: 31 },
         },
         didParseCell: ({ section, column, cell }) => {
           if (section !== "body" || column.index !== 4) return;
-          if (cell.raw === "Bride") {
+          if (typeof cell.raw === "string" && cell.raw.startsWith("Bride")) {
             cell.styles.textColor = [125, 79, 72];
             cell.styles.fillColor = [244, 231, 226];
-          } else if (cell.raw === "Groom") {
+          } else if (typeof cell.raw === "string" && cell.raw.startsWith("Groom")) {
             cell.styles.textColor = [49, 84, 64];
             cell.styles.fillColor = [229, 239, 231];
           } else {
@@ -254,8 +283,8 @@ export function AdminShell() {
       </section>
       <section className="guest-panel">
         <div className="table-tools"><label><Search size={17} /><input value={query} onChange={e => setQuery(e.target.value)} placeholder="Search name, phone or reference" /></label><div className="filters">{(["All", "Pending", "Approved", "Declined", "Checked In"] as const).map(item => <button className={filter === item ? "active" : ""} onClick={() => setFilter(item)} key={item}>{item}</button>)}</div></div>
-        <div className="table-wrap"><table><thead><tr><th>Guest</th><th>Attendance</th><th>Family</th><th>Allocation</th><th>Status</th><th>Reference</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>
-          {visible.map(guest => <tr key={guest.id}><td><strong>{guest.full_name}</strong><span>{guest.whatsapp}</span></td><td>{guest.attendance === "accepts" ? "Joyfully accepts" : "Regretfully declines"}</td><td><span className={`family-badge ${guest.guest_side ? `family-${guest.guest_side}` : "family-unknown"}`}>{guest.guest_side ? `${guest.guest_side === "bride" ? "Bride" : "Groom"}’s guest` : "Not set"}</span></td><td><select aria-label={`Allocation for ${guest.full_name}`} value={guest.allocation} onChange={e => act(guest.id, "update", { allocation: Number(e.target.value) })}><option value={1}>Individual</option><option value={2}>Couple</option></select></td><td><span className={`status status-${guest.status.toLowerCase().replace(" ", "-")}`}>{guest.status}</span></td><td className="reference">{guest.guest_reference || "—"}</td><td>{new Date(guest.submitted_at).toLocaleDateString("en-ZM", { day: "2-digit", month: "short", year: "numeric" })}</td><td><div className="row-actions">{guest.status === "Pending" && <><button className="approve" onClick={() => act(guest.id, "approve", { allocation: guest.allocation })}><Check size={15} /> Approve</button><button onClick={() => act(guest.id, "reject")}><X size={15} /> Reject</button></>}<button onClick={() => { setDrawerNotice(""); setSelected(guest); }}>View</button></div></td></tr>)}
+        <div className="table-wrap"><table><thead><tr><th>Guest</th><th>Attendance</th><th>Type of guest</th><th>Party</th><th>Status</th><th>Reference</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>
+          {visible.map(guest => <tr key={guest.id}><td><strong>{guest.full_name}</strong>{partyTypeFor(guest) === "plus_one" && guest.plus_one_name && <small>Plus one: {guest.plus_one_name}</small>}<span>{guest.whatsapp}</span></td><td>{guest.attendance === "accepts" ? "Joyfully accepts" : "Regretfully declines"}</td><td><span className={`family-badge ${guestTypeClass(guest.guest_side)}`}>{guestTypeLabel(guest.guest_side)}</span></td><td><select aria-label={`Party allocation for ${guest.full_name}`} value={partyTypeFor(guest)} onChange={e => act(guest.id, "update", { partyType: e.target.value })}><option value="individual">Individual</option><option value="plus_one">Individual + one</option><option value="couple">Couple</option></select></td><td><span className={`status status-${guest.status.toLowerCase().replace(" ", "-")}`}>{guest.status}</span></td><td className="reference">{guest.guest_reference || "—"}</td><td>{new Date(guest.submitted_at).toLocaleDateString("en-ZM", { day: "2-digit", month: "short", year: "numeric" })}</td><td><div className="row-actions">{guest.status === "Pending" && <><button className="approve" onClick={() => act(guest.id, "approve")}><Check size={15} /> Approve</button><button onClick={() => act(guest.id, "reject")}><X size={15} /> Reject</button></>}<button onClick={() => { setDrawerNotice(""); setSelected(guest); }}>View</button></div></td></tr>)}
           {!visible.length && <tr><td colSpan={8} className="empty-row">No guests match this view.</td></tr>}
         </tbody></table></div>
       </section>
@@ -264,7 +293,7 @@ export function AdminShell() {
         <button type="button" onClick={downloadGuestList} disabled={!guests.length || exportingPdf}><Download size={18} /> {exportingPdf ? "Preparing PDF..." : "Download guest list PDF"}</button>
       </div>
     </main>
-    {selected && <div className="drawer-backdrop" onMouseDown={() => setSelected(null)}><aside className="guest-drawer" onMouseDown={e => e.stopPropagation()}><button className="drawer-close" aria-label="Close guest details" onClick={() => setSelected(null)}><X /></button><p className="admin-eyebrow">Guest details</p><h2>{selected.full_name}</h2><dl><div><dt>WhatsApp</dt><dd>{selected.whatsapp}</dd></div><div><dt>Family</dt><dd><span className={`family-badge ${selected.guest_side ? `family-${selected.guest_side}` : "family-unknown"}`}>{selected.guest_side ? `${selected.guest_side === "bride" ? "Bride" : "Groom"}’s guest` : "Not set"}</span></dd></div><div><dt>Attendance</dt><dd>{selected.attendance === "accepts" ? "Joyfully accepts" : "Regretfully declines"}</dd></div><div><dt>Allocation</dt><dd>{selected.allocation === 2 ? "Couple" : "1 Person"}</dd></div><div><dt>Status</dt><dd>{selected.status}</dd></div><div><dt>Reference</dt><dd>{selected.guest_reference || "Generated after approval"}</dd></div></dl>
+    {selected && <div className="drawer-backdrop" onMouseDown={() => setSelected(null)}><aside className="guest-drawer" onMouseDown={e => e.stopPropagation()}><button className="drawer-close" aria-label="Close guest details" onClick={() => setSelected(null)}><X /></button><p className="admin-eyebrow">Guest details</p><h2>{guestNames(selected)}</h2><dl><div><dt>WhatsApp</dt><dd>{selected.whatsapp}</dd></div><div><dt>Type of guest</dt><dd><span className={`family-badge ${guestTypeClass(selected.guest_side)}`}>{guestTypeLabel(selected.guest_side)}</span></dd></div><div><dt>Attendance</dt><dd>{selected.attendance === "accepts" ? "Joyfully accepts" : "Regretfully declines"}</dd></div><div><dt>Party</dt><dd>{partyTypeLabel(selected)} · {selected.allocation} {selected.allocation === 1 ? "guest" : "guests"}</dd></div><div><dt>Status</dt><dd>{selected.status}</dd></div><div><dt>Reference</dt><dd>{selected.guest_reference || "Generated after approval"}</dd></div></dl>
       {selected.guest_reference && <div className="qr-card">{qr && <img src={qr} alt={`QR code for ${selected.guest_reference}`} />}<strong>{selected.guest_reference}</strong></div>}
       <label className="notes-label">Admin notes<textarea defaultValue={selected.admin_notes} onBlur={e => act(selected.id, "update", { notes: e.target.value })} placeholder="Private notes about this guest" /></label>
       {selected.status === "Approved" && <div className="confirmation-actions"><a className="whatsapp-button" href={whatsappHref(selected.whatsapp, confirmationMessage(selected))} target="_blank" rel="noreferrer">Open in WhatsApp <ExternalLink size={16} /></a><button className="admin-button secondary" onClick={() => copyConfirmation(selected)}><Copy size={16} /> Copy confirmation</button><button className="admin-button secondary" onClick={() => act(selected.id, "mark-sent")}><Check size={16} /> Mark as sent</button><button className="admin-button secondary" onClick={() => act(selected.id, "check-in")}>Check in guest</button></div>}
@@ -280,7 +309,7 @@ export function CheckInShell() {
   const [authorized, setAuthorized] = useState<boolean | null>(null);
   const [showLogin, setShowLogin] = useState(false);
   const [reference, setReference] = useState("");
-  const [guest, setGuest] = useState<Pick<RsvpRecord, "id" | "full_name" | "guest_reference" | "allocation" | "status" | "checked_in_at"> | null>(null);
+  const [guest, setGuest] = useState<Pick<RsvpRecord, "id" | "full_name" | "plus_one_name" | "party_type" | "guest_reference" | "allocation" | "status" | "checked_in_at"> | null>(null);
   const [error, setError] = useState("");
   async function verify(checkIn = false) {
     setError("");
@@ -296,6 +325,6 @@ export function CheckInShell() {
   if (showLogin) return <><Login title="Check-in administration" onSuccess={() => { setAuthorized(true); setShowLogin(false); }} /><button className="login-back" onClick={() => setShowLogin(false)}>Back to guest verification</button></>;
   return <main className="checkin-page"><header><a href="/">J <i>&amp;</i> D</a>{authorized ? <a className="checkin-admin-link" href="/admin">Administration</a> : <button className="checkin-admin-link" onClick={() => setShowLogin(true)}>Admin sign in</button>}</header><section className="checkin-card"><p className="admin-eyebrow">21 November 2026</p><h1>Guest Verification</h1><p>Anyone can verify a guest reference. Only signed-in administrators can complete check-in.</p><form onSubmit={e => { e.preventDefault(); verify(); }}><label htmlFor="reference">Guest reference</label><div className="checkin-form-row"><input id="reference" value={reference} onChange={e => setReference(e.target.value.toUpperCase())} placeholder="JD-00010" maxLength={8} autoCapitalize="characters" autoComplete="off" spellCheck={false} autoFocus /><button type="submit" disabled={!reference.trim()}><Search size={18} /> Find guest</button></div></form>
       {error && <div className="verify-result invalid"><strong>{error.startsWith("Admin") ? "ADMIN SIGN-IN REQUIRED" : "REFERENCE NOT FOUND"}</strong><span>{error.startsWith("Admin") ? error : "Please confirm the reference number and try again."}</span></div>}
-      {guest && <div className={`verify-result ${guest.status === "Checked In" ? "already" : "valid"}`}><strong>{guest.status === "Checked In" ? "CHECKED IN" : "✓ APPROVED GUEST"}</strong><dl><div><dt>Guest</dt><dd>{guest.full_name}</dd></div><div><dt>Reference</dt><dd>{guest.guest_reference}</dd></div><div><dt>Allocation</dt><dd>{guest.allocation === 2 ? "Couple" : "1 Person"}</dd></div><div><dt>Status</dt><dd>{guest.status === "Checked In" ? `Checked in ${new Date(guest.checked_in_at!).toLocaleString("en-ZM")}` : "Not checked in"}</dd></div></dl>{guest.status !== "Checked In" && (authorized ? <button className="checkin-action" onClick={() => verify(true)}>Check in guest</button> : <p className="checkin-readonly">Verification only · An administrator must sign in to check in this guest.</p>)}</div>}
+      {guest && <div className={`verify-result ${guest.status === "Checked In" ? "already" : "valid"}`}><strong>{guest.status === "Checked In" ? "CHECKED IN" : "✓ APPROVED GUEST"}</strong><dl><div><dt>Guest</dt><dd>{guest.party_type === "plus_one" && guest.plus_one_name ? `${guest.full_name} + ${guest.plus_one_name}` : guest.full_name}</dd></div><div><dt>Reference</dt><dd>{guest.guest_reference}</dd></div><div><dt>Allocation</dt><dd>{guest.party_type === "plus_one" ? "Individual + one" : guest.party_type === "couple" || (!guest.party_type && guest.allocation === 2) ? "Couple" : "Individual"} · {guest.allocation} {guest.allocation === 1 ? "guest" : "guests"}</dd></div><div><dt>Status</dt><dd>{guest.status === "Checked In" ? `Checked in ${new Date(guest.checked_in_at!).toLocaleString("en-ZM")}` : "Not checked in"}</dd></div></dl>{guest.status !== "Checked In" && (authorized ? <button className="checkin-action" onClick={() => verify(true)}>Check in guest</button> : <p className="checkin-readonly">Verification only · An administrator must sign in to check in this guest.</p>)}</div>}
     </section></main>;
 }

@@ -4,6 +4,7 @@ import Image from "next/image";
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import { CalendarDays, ChevronDown, MapPin } from "lucide-react";
 import { closingImage, collageImages, heroImage } from "@/lib/site-images";
+import type { PartyType } from "@/lib/types";
 
 const weddingDate = new Date("2026-11-21T11:00:00+02:00");
 
@@ -71,6 +72,7 @@ function useScrollReveal() {
 
 export function Invitation() {
   const [result, setResult] = useState<{ state: "idle" | "sending" | "success" | "error"; message?: string }>({ state: "idle" });
+  const [partyType, setPartyType] = useState<PartyType | "">("");
   useScrollReveal();
 
   async function submitRsvp(event: FormEvent<HTMLFormElement>) {
@@ -83,6 +85,8 @@ export function Invitation() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         fullName: data.get("fullName"),
+        plusOneName: data.get("plusOneName") || "",
+        partyType: data.get("partyType"),
         whatsapp: data.get("whatsapp"),
         attendance: data.get("attendance"),
         guestSide: data.get("guestSide"),
@@ -94,6 +98,7 @@ export function Invitation() {
     const payload = await response.json();
     if (!response.ok) return setResult({ state: "error", message: payload.error });
     form.reset();
+    setPartyType("");
     setResult({ state: "success", message: payload.firstName });
   }
 
@@ -196,9 +201,10 @@ export function Invitation() {
             <div className="success" role="status"><span className="success-mark">✓</span><h3>Thank you, {result.message}.</h3><p>Your RSVP has been received.</p><p>Once your attendance has been approved, you will receive your unique guest reference via WhatsApp. Please keep it safely, as it will be required for verification at the event entrance.</p></div>
           ) : (
             <form onSubmit={submitRsvp}>
-              <div className="field"><label htmlFor="fullName">Full name</label><input id="fullName" name="fullName" autoComplete="name" required minLength={2} placeholder="Your full name" /></div>
+              <fieldset className="party-fieldset"><legend>Guest allocation</legend><div className="party-choices"><label className="party-choice"><input type="radio" name="partyType" value="individual" required checked={partyType === "individual"} onChange={() => setPartyType("individual")} /><span>Individual</span></label><label className="party-choice"><input type="radio" name="partyType" value="plus_one" required checked={partyType === "plus_one"} onChange={() => setPartyType("plus_one")} /><span>Individual + one</span></label><label className="party-choice"><input type="radio" name="partyType" value="couple" required checked={partyType === "couple"} onChange={() => setPartyType("couple")} /><span>Couple</span></label></div></fieldset>
+              {partyType && <div className="field"><label htmlFor="fullName">Full name</label><input id="fullName" name="fullName" autoComplete="name" required minLength={2} maxLength={120} placeholder={partyType === "couple" ? "Mr & Mrs..." : "Your full name"} />{partyType === "plus_one" && <><label htmlFor="plusOneName">Plus one’s full name</label><input id="plusOneName" name="plusOneName" autoComplete="off" required minLength={2} maxLength={120} placeholder="Plus one’s full name" /></>}</div>}
               <div className="field"><label htmlFor="whatsapp">WhatsApp number</label><input id="whatsapp" name="whatsapp" autoComplete="tel" inputMode="tel" required placeholder="0971 234 567" /><small>Zambian formats such as 0971234567 or +260971234567</small></div>
-              <fieldset className="side-fieldset"><legend>Which side invited you?</legend><div className="side-choices"><label className="side-choice side-choice-bride"><input type="radio" name="guestSide" value="bride" required /><span>Bride’s guest</span></label><label className="side-choice side-choice-groom"><input type="radio" name="guestSide" value="groom" required /><span>Groom’s guest</span></label></div></fieldset>
+              <fieldset className="side-fieldset"><legend>Type of guest</legend><div className="side-choices"><label className="side-choice side-choice-bride"><input type="radio" name="guestSide" value="bride_guest" required /><span>Bride’s guest</span></label><label className="side-choice side-choice-groom"><input type="radio" name="guestSide" value="groom_guest" required /><span>Groom’s guest</span></label><label className="side-choice side-choice-bride-family"><input type="radio" name="guestSide" value="bride_family" required /><span>Bride’s family</span></label><label className="side-choice side-choice-groom-family"><input type="radio" name="guestSide" value="groom_family" required /><span>Groom’s family</span></label></div></fieldset>
               <fieldset><legend>Attendance</legend><label className="choice"><input type="radio" name="attendance" value="accepts" required /><span>Joyfully accepts</span></label><label className="choice"><input type="radio" name="attendance" value="declines" required /><span>Regretfully declines</span></label></fieldset>
               <label className="agreement"><input type="checkbox" name="allocationAccepted" required /><span>I understand that attendance is limited to the number of guests allocated to this invitation.</span></label>
               <label className="agreement whatsapp-consent"><input type="checkbox" name="whatsappConsent" required /><span>I agree to receive my wedding confirmation and important event updates from James &amp; Diana via WhatsApp.</span></label>

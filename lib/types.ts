@@ -1,6 +1,7 @@
 export type RsvpStatus = "Pending" | "Approved" | "Declined" | "Checked In";
 export type Attendance = "accepts" | "declines";
-export type GuestSide = "bride" | "groom";
+export type PartyType = "individual" | "plus_one" | "couple";
+export type GuestSide = "bride_guest" | "groom_guest" | "bride_family" | "groom_family" | "bride" | "groom";
 
 export interface RsvpRecord {
   id: string;
@@ -8,6 +9,8 @@ export interface RsvpRecord {
   whatsapp: string;
   attendance: Attendance;
   guest_side: GuestSide | null;
+  party_type?: PartyType;
+  plus_one_name?: string | null;
   submitted_at: string;
   status: RsvpStatus;
   allocation: 1 | 2;
@@ -17,7 +20,10 @@ export interface RsvpRecord {
   admin_notes: string;
 }
 
-export type RsvpInput = Pick<RsvpRecord, "full_name" | "whatsapp" | "attendance" | "guest_side">;
+export type RsvpInput = Pick<RsvpRecord, "full_name" | "whatsapp" | "attendance" | "guest_side"> & {
+  party_type: PartyType;
+  plus_one_name: string | null;
+};
 
 export type AdminRole = "owner" | "admin" | "check_in";
 

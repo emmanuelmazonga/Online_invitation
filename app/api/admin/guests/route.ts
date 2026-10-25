@@ -2,6 +2,11 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { getAdminAccess } from "@/lib/auth";
 import { deleteRsvp, listRsvps, restoreDeclinedRsvp, uniqueReference, updateRsvp } from "@/lib/rsvp-store";
+import type { PartyType } from "@/lib/types";
+
+function allocationForParty(partyType: PartyType) {
+  return partyType === "individual" ? 1 : 2;
+}
 
 export async function GET() {
   const access = await getAdminAccess(["owner", "admin"]);
@@ -12,7 +17,7 @@ export async function GET() {
 const actionSchema = z.object({
   id: z.string().uuid(),
   action: z.enum(["approve", "reject", "check-in", "mark-sent", "restore-pending", "update"]),
-  allocation: z.union([z.literal(1), z.literal(2)]).optional(),
+  partyType: z.enum(["individual", "plus_one", "couple"]).optional(),
   notes: z.string().max(1000).optional(),
 });
 
@@ -21,19 +26,19 @@ export async function PATCH(request: Request) {
   if (!access) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   const parsed = actionSchema.safeParse(await request.json().catch(() => null));
   if (!parsed.success) return NextResponse.json({ error: "Invalid request" }, { status: 400 });
-  const { id, action, allocation, notes } = parsed.data;
+  const { id, action, partyType, notes } = parsed.data;
   if (action === "restore-pending" && access.role !== "owner") {
     return NextResponse.json({ error: "Only an owner can return a declined guest to pending." }, { status: 403 });
   }
 
   try {
     let guest;
-    if (action === "approve") guest = await updateRsvp(id, { status: "Approved", guest_reference: await uniqueReference(), allocation: allocation ?? 1 });
+    if (action === "approve") guest = await updateRsvp(id, { status: "Approved", guest_reference: await uniqueReference() });
     else if (action === "reject") guest = await updateRsvp(id, { status: "Declined" });
     else if (action === "check-in") guest = await updateRsvp(id, { status: "Checked In", checked_in_at: new Date().toISOString() });
     else if (action === "mark-sent") guest = await updateRsvp(id, { confirmation_sent_at: new Date().toISOString() });
     else if (action === "restore-pending") guest = await restoreDeclinedRsvp(id);
-    else guest = await updateRsvp(id, { ...(allocation ? { allocation } : {}), ...(notes !== undefined ? { admin_notes: notes } : {}) });
+    else guest = await updateRsvp(id, { ...(partyType ? { party_type: partyType, allocation: allocationForParty(partyType), ...(partyType === "plus_one" ? {} : { plus_one_name: null }) } : {}), ...(notes !== undefined ? { admin_notes: notes } : {}) });
     return NextResponse.json({ guest });
   } catch (error) {
     if (error instanceof Error && error.message === "NOT_DECLINED") {

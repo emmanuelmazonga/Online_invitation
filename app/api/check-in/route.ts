@@ -24,6 +24,8 @@ export async function POST(request: Request) {
     guest: {
       id: guest.id,
       full_name: guest.full_name,
+      plus_one_name: guest.plus_one_name,
+      party_type: guest.party_type ?? (guest.allocation === 2 ? "couple" : "individual"),
       guest_reference: guest.guest_reference,
       allocation: guest.allocation,
       status: guest.status,

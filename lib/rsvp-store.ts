@@ -45,7 +45,7 @@ export async function createRsvp(input: RsvpInput): Promise<RsvpRecord> {
     ...input,
     submitted_at: new Date().toISOString(),
     status: "Pending",
-    allocation: 1,
+    allocation: input.party_type === "individual" ? 1 : 2,
     guest_reference: null,
     checked_in_at: null,
     confirmation_sent_at: null,
