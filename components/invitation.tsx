@@ -139,7 +139,7 @@ export function Invitation() {
             <span className="venue-number">01</span>
             <p className="eyebrow">Holy Matrimony</p>
             <h3>St Anthony of Padua Parish,<br />Franciscan Center Ndola</h3>
-            <dl><div><dt>Date</dt><dd>21 November 2026</dd></div><div><dt>Time</dt><dd>09:00–11:00 hrs</dd></div><div><dt>Place</dt><dd>Ndola, Zambia</dd></div></dl>
+            <dl><div><dt>Date</dt><dd>21 November 2026</dd></div><div><dt>Time</dt><dd>09:00 hrs</dd></div><div><dt>Place</dt><dd>Ndola, Zambia</dd></div></dl>
             <a className="text-link" href="https://maps.app.goo.gl/siwPP7emYgM9XUvW7" target="_blank" rel="noreferrer"><MapPin size={16} /> View location</a>
           </article>
           <article className="venue venue-reception scroll-reveal reveal-delay-1" data-reveal="right">
@@ -156,7 +156,7 @@ export function Invitation() {
         <p className="eyebrow scroll-reveal">21 November 2026</p>
         <h2 className="scroll-reveal reveal-delay-1" data-reveal="heading">Order of the day</h2>
         <div className="timeline">
-          <article className="scroll-reveal" data-reveal="left"><time>09:00–11:00 hrs</time><span className="timeline-dot" /><div><h3>Holy Matrimony</h3><p>St Anthony of Padua Parish, Franciscan Center Ndola</p></div></article>
+          <article className="scroll-reveal" data-reveal="left"><time>09:00 hrs</time><span className="timeline-dot" /><div><h3>Holy Matrimony</h3><p>St Anthony of Padua Parish, Franciscan Center Ndola</p></div></article>
           <article className="scroll-reveal reveal-delay-1" data-reveal="left"><time>17:00 hrs</time><span className="timeline-dot" /><div><h3>Reception</h3><p>Izu Hotel</p></div></article>
         </div>
         <aside className="dress-code scroll-reveal" id="dress-code" data-reveal="scale" aria-labelledby="dress-code-title">
@@ -183,14 +183,14 @@ export function Invitation() {
         <div className="gift-inner scroll-reveal" data-reveal="scale">
           <p className="eyebrow light">With love &amp; gratitude</p>
           <h2>Your presence is our greatest gift</h2>
-          <p>Your presence on our special day means a great deal to us. For those wishing to present a gift, we kindly request monetary gifts.</p>
-          <div className="gift-values"><div><span>Individual</span><strong>K600</strong></div><div><span>Couple</span><strong>K1,200</strong></div></div>
-          <div className="policy"><span>Kindly note</span><p>Strictly one person per invitation unless the invitation has specifically been issued for a couple.</p></div>
+          <p>Having you with us on our special day means so much. For those who would like to bless us with a gift, we would be grateful for a monetary contribution.</p>
+          <div className="gift-values"><div><span>Individuals</span><strong>K500</strong></div><div><span>Couples</span><strong>K1,000</strong></div></div>
+          <div className="policy"><span>Kindly note</span><p>Strictly one person per card.</p><p>Guests attending with a plus one are kindly requested to contribute K1,000 for both.</p><p>Those who wish to add more than the required amount can do so.</p></div>
         </div>
       </section>
 
       <section className="rsvp section" id="rsvp">
-        <div className="rsvp-intro scroll-reveal" data-reveal="left"><p className="eyebrow">Répondez s’il vous plaît</p><h2>Will You Join Us?</h2><p>We would be honoured to celebrate this special day with you. Kindly confirm your attendance below.</p><p className="queries-line">Questions about the wedding?</p><a className="queries-button" href="https://wa.me/260972281240?text=Hello%20Tabo%2C%20I%20have%20a%20question%20about%20James%20%26%20Diana%27s%20wedding." target="_blank" rel="noreferrer">WhatsApp Tabo Maonde · +260 972 281 240</a><Ornament /></div>
+        <div className="rsvp-intro scroll-reveal" data-reveal="left"><p className="eyebrow">Répondez s’il vous plaît</p><h2>Will You Join Us?</h2><p>We would be honoured to celebrate this special day with you. Kindly confirm your attendance below.</p><p className="queries-line">Questions about the wedding?</p><div className="queries-contacts"><a className="queries-button" href="https://wa.me/260750774920?text=Hello%20Emmanuel%2C%20I%20have%20a%20question%20about%20James%20%26%20Diana%27s%20wedding." target="_blank" rel="noreferrer">WhatsApp Emmanuel Mazonga · +260 750 774 920</a><a className="queries-button" href="https://wa.me/260760062198?text=Hello%20Nasanta%2C%20I%20have%20a%20question%20about%20James%20%26%20Diana%27s%20wedding." target="_blank" rel="noreferrer">WhatsApp Nasanta Shatewa · +260 760 062 198</a></div><Ornament /></div>
         <div className="rsvp-panel scroll-reveal reveal-delay-1" data-reveal="right">
           {result.state === "success" ? (
             <div className="success" role="status"><span className="success-mark">✓</span><h3>Thank you, {result.message}.</h3><p>Your RSVP has been received.</p><p>Once your attendance has been approved, you will receive your unique guest reference via WhatsApp. Please keep it safely, as it will be required for verification at the event entrance.</p></div>
