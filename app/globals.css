@@ -135,6 +135,7 @@ h2 { margin: 0; font-size: clamp(3rem, 7vw, 6.4rem); letter-spacing: -.045em; }
 .rsvp-intro h2 { font-size: clamp(3.6rem, 7vw, 6.5rem); }
 .rsvp-intro > p:not(.eyebrow) { max-width: 470px; margin: 2rem 0; color: #58645a; font-family: var(--serif); font-size: 1.2rem; }
 .rsvp-intro .queries-line { margin-top: -1rem !important; font-family: var(--sans) !important; font-size: .76rem !important; font-weight: 700; letter-spacing: .11em; text-transform: uppercase; }
+.rsvp-intro .queries-caption { margin: -.45rem 0 .8rem; color: #58645a; font-size: .83rem; }
 .queries-line a { color: var(--deep-sage); text-underline-offset: 4px; }
 .queries-button { display: inline-flex; width: 100%; min-height: 46px; align-items: center; justify-content: center; margin: -.8rem 0 1.5rem; padding: .7rem 1rem; color: var(--forest); background: var(--sage); font-size: .72rem; font-weight: 700; letter-spacing: .06em; text-align: center; text-decoration: none; text-transform: uppercase; }
 .queries-contacts { display: grid; justify-items: stretch; gap: .6rem; width: min(100%, 360px); margin: -.8rem 0 1.5rem; }
