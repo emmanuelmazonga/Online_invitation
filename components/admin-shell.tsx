@@ -85,7 +85,7 @@ function guestTypeClass(side: RsvpRecord["guest_side"]) {
 function confirmationMessage(guest: RsvpRecord) {
   const allocation = partyTypeLabel(guest);
   const guestName = partyTypeFor(guest) === "plus_one" && guest.plus_one_name ? `${guest.full_name} and ${guest.plus_one_name}` : guest.full_name;
-  return `💍 James & Diana — Wedding Reminder\n\nDear ${guestName},\n\nThe big day is almost here! ❤️\n\nThis is a gentle reminder of your confirmed attendance at James & Diana's wedding on 21 November 2026.\n\n🪪 Guest Reference: *${guest.guest_reference}*\n👤 Allocation: *${allocation}*\n\nPlease keep your reference safe and present it at the entrance.\n\nWe can't wait to celebrate with you!\n\nWith love,\nJames & Diana`;
+  return `💍 James & Diana — Wedding Reminder\n\nDear ${guestName},\n\nThe big day is almost here! ❤️\n\nThis is a gentle reminder of your confirmed attendance at James & Diana's wedding on 21 November 2026.\n\n📢 PLEASE NOTE THE UPDATED TIME\n⛪ Holy Matrimony will now begin at:\n🕘 09:00 HRS\n\nKindly take note of this important change and plan accordingly.\n\n🪪 Guest Reference: *${guest.guest_reference}*\n👤 Allocation: *${allocation}*\n\nPlease keep your reference safe and present it at the entrance.\n\nWe can't wait to celebrate with you!\n\nWith love,\nJames & Diana ❤️`;
 }
 
 export function AdminShell() {
